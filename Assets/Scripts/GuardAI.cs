@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class GuardScript : MonoBehaviour
+public class GuardAI : MonoBehaviour
 {
     protected private NavMeshAgent m_agent;
     protected GuardStates m_currentState = GuardStates.PATROL;
@@ -23,8 +23,9 @@ public class GuardScript : MonoBehaviour
 
     private void Update()
     {
-        if(TargetTransform)
-            m_agent.destination = TargetTransform.position;
+        if(TargetTransform && 
+            TargetTransform.gameObject.activeInHierarchy)
+                m_agent.destination = TargetTransform.position;
     }
 
     private void OnEnable()
@@ -58,6 +59,7 @@ public class GuardScript : MonoBehaviour
             //TODO
             // CHASE
             OnStateChanged(GuardStates.PATROL);
+
         }
     }
 
