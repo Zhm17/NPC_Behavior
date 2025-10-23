@@ -7,8 +7,7 @@ public class GuardAI : MonoBehaviour
     protected private NavMeshAgent m_agent;
     protected EGuardStates m_currentState = EGuardStates.PATROL;
 
-    private float m_distance2Player;
-
+   
     [SerializeField] public Transform TargetTransform;
 
     void Awake()
