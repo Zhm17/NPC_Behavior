@@ -6,17 +6,35 @@ public class GuardScript : MonoBehaviour
     protected private NavMeshAgent m_agent;
     protected GuardStates m_currentState = GuardStates.PATROL;
 
-    private float distance2Player;
+    private float m_distance2Player;
+
+    [SerializeField] public Transform TargetTransform;
 
     void Awake()
     {
-        OnStateChanged(GuardStates.PATROL);
+        Init();
     }
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         
+    }
+
+    private void Update()
+    {
+        if(TargetTransform)
+            m_agent.destination = TargetTransform.position;
+    }
+
+    private void OnEnable()
+    {
+        OnStateChanged(GuardStates.PATROL);
+    }
+
+    private void Init()
+    {
+        m_agent = GetComponent<NavMeshAgent>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -46,8 +64,8 @@ public class GuardScript : MonoBehaviour
     private void OnStateChanged(GuardStates newState)
     {
         m_currentState = newState;
-        switch (newState){
-
+        switch (newState)
+        {
             case GuardStates.PATROL:
                 PatrolExec();
                 break;
@@ -62,7 +80,7 @@ public class GuardScript : MonoBehaviour
 
     private void PatrolExec()
     {
-        // REandom target on the navigation area
+        // Random target on the navigation area
         // Executing Patrol
     }
 
