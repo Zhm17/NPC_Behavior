@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+[RequireComponent(typeof(GuardStateController))]
 public class GuardAI : MonoBehaviour
 {
     protected private NavMeshAgent m_agent;
@@ -44,9 +45,15 @@ public class GuardAI : MonoBehaviour
 
         if (other.TryGetComponent(out TestPlayer player))
         {
-            //TODO
-            // CHASE
-            //OnStateChanged(EGuardStates.CHASING);
+            m_agent.destination = other.transform.position;
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.TryGetComponent(out TestPlayer player))
+        {
+            m_agent.destination = other.transform.position;
         }
     }
 
@@ -56,12 +63,23 @@ public class GuardAI : MonoBehaviour
 
         if (other.TryGetComponent(out TestPlayer player))
         {
-            //TODO
-            // CHASE
-            //OnStateChanged(EGuardStates.PATROL);
-
+            m_agent.destination = TargetTransform.position;
         }
     }
 
+    private float EvaluateDistance(Transform target)
+    {
+        return Vector3.Distance(transform.localPosition, target.localPosition);
+    }
+
+    private bool IsClose(float distance, Transform target)
+    {
+        if(EvaluateDistance(target) <= distance)
+        {
+            return true;
+        }
+
+        return false;
+    }
 
 }
