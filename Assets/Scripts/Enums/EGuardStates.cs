@@ -1,6 +1,6 @@
-using UnityEngine;
 
-public enum GuardStates
+
+public enum EGuardStates
 {
     PATROL = 0,
     CHASING = 1,

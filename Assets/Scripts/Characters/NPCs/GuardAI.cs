@@ -4,7 +4,7 @@ using UnityEngine.AI;
 public class GuardAI : MonoBehaviour
 {
     protected private NavMeshAgent m_agent;
-    protected GuardStates m_currentState = GuardStates.PATROL;
+    protected EGuardStates m_currentState = EGuardStates.PATROL;
 
     private float m_distance2Player;
 
@@ -30,7 +30,7 @@ public class GuardAI : MonoBehaviour
 
     private void OnEnable()
     {
-        OnStateChanged(GuardStates.PATROL);
+        //OnStateChanged(EGuardStates.PATROL);
     }
 
     private void Init()
@@ -46,7 +46,7 @@ public class GuardAI : MonoBehaviour
         {
             //TODO
             // CHASE
-            OnStateChanged(GuardStates.CHASING);
+            //OnStateChanged(EGuardStates.CHASING);
         }
     }
 
@@ -58,43 +58,10 @@ public class GuardAI : MonoBehaviour
         {
             //TODO
             // CHASE
-            OnStateChanged(GuardStates.PATROL);
+            //OnStateChanged(EGuardStates.PATROL);
 
         }
     }
 
-    private void OnStateChanged(GuardStates newState)
-    {
-        m_currentState = newState;
-        switch (newState)
-        {
-            case GuardStates.PATROL:
-                PatrolExec();
-                break;
-            case GuardStates.CHASING:
-                ChaseExec ();
-                break;
-            case GuardStates.ATTACKING:
-                AttackExec();
-                break;
-        }
-    }
 
-    private void PatrolExec()
-    {
-        // Random target on the navigation area
-        // Executing Patrol
-    }
-
-    private void ChaseExec()
-    {
-       
-        // Executing Chasing
-        //(Changing the target to the player
-    }
-
-    private void AttackExec()
-    {
-        // Executing Attack
-    }
 }
