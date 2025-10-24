@@ -1606,10 +1606,6 @@ PrefabInstance:
       value: GuardAICapsule
       objectReference: {fileID: 0}
     - target: {fileID: 5159701892647158585, guid: 4a42358c2175bf048aeddca47e721ab0, type: 3}
-      propertyPath: TargetTransform
-      value: 
-      objectReference: {fileID: 2114196535}
-    - target: {fileID: 5159701892647158585, guid: 4a42358c2175bf048aeddca47e721ab0, type: 3}
       propertyPath: TargetPointTransform
       value: 
       objectReference: {fileID: 2114196535}

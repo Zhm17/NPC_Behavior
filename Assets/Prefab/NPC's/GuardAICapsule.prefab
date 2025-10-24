@@ -149,7 +149,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3826af60b3e6ff546ac36bb75621c5fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TargetTransform: {fileID: 0}
+  TargetPointTransform: {fileID: 0}
+  m_minDistanceToPlayer: 100
 --- !u!54 &2383990682865210576
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -205,6 +206,7 @@ GameObject:
   - component: {fileID: 4013281355907755112}
   - component: {fileID: 5316556793790982106}
   - component: {fileID: 8456929668615620949}
+  - component: {fileID: 5641642897298807612}
   m_Layer: 0
   m_Name: SphereVision
   m_TagString: Untagged
@@ -301,3 +303,15 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5641642897298807612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9175526664083297164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cef681ff2f521a4dbe22d0f1ae4abdb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

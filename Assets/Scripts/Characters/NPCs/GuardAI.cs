@@ -1,3 +1,5 @@
+using Generics;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -18,91 +20,119 @@ public class GuardAI : MonoBehaviour
     [SerializeField] private float m_minDistanceToPlayer = 100f;
     public float MinDistanceToPlayer => m_minDistanceToPlayer;
 
-    void Awake()
-    {
-        Init();
-    } 
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
 
-    private void Update()
-    {
-        if (StateController.CurrentState == EGuardStates.PATROL)
-        {
-            if (TargetPointTransform &&
-                TargetPointTransform.gameObject.activeInHierarchy)
-                    m_agent.destination = 
-                    TargetPointTransform.transform.position;
-        }
-    }
+    [Header("Character Detector")]
+    [SerializeField] private CharacterDetector m_characterDetector;
+    public CharacterDetector CharacterDetector => m_characterDetector;
+
+    [Header("Delay After Attack")]
+    [SerializeField] private float m_delaySeconds = 3f;
+    public float DelaySeconds => m_delaySeconds;
 
     private void OnEnable()
     {
+        CharacterDetector.OnCharacterDetected += OnCharacterEnter;
+        CharacterDetector.OnCharacterExit += OnCharacterExit;
 
+        StartCoroutine(UpdateMethod());
     }
 
-    private void Init()
+    private void OnDisable()
+    {
+        CharacterDetector.OnCharacterDetected -= OnCharacterEnter;
+        CharacterDetector.OnCharacterExit -= OnCharacterExit;
+
+        StopAllCoroutines();
+    }
+
+    private void OnDestroy()
+    {
+        CharacterDetector.OnCharacterDetected -= OnCharacterEnter;
+        CharacterDetector.OnCharacterExit -= OnCharacterExit;
+
+        StopAllCoroutines();
+    }
+
+    void Awake()
     {
         m_agent = GetComponent<NavMeshAgent>();
         m_stateController = GetComponent<GuardStateController>();
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void Start()
     {
-        if (other == null) { return; }
-
-        if (other.TryGetComponent(out CharacterController player))
-        {
-            m_agent.destination = other.transform.position;
-            StateController.SetChase();
-        }
+        Init();
     }
 
-    private void OnTriggerStay(Collider other)
-    {
-        if (other.TryGetComponent(out CharacterController player))
-        {
-            m_agent.destination = other.transform.position;
 
-            if (PlayerIsClose(m_minDistanceToPlayer, other.transform))
+    IEnumerator UpdateMethod()
+    {
+        while (true)
+        {
+            if ((int)StateController.CurrentState > 0)
             {
-                StateController.SetAttack();
+                if (CharacterDetector.Character &&
+                    PlayerIsClose(CharacterDetector.Character.transform))
+                {
+                    OnCharacterAttack();
+                }
             }
+            else
+            {
+                if (TargetPointTransform &&
+                    TargetPointTransform.gameObject.activeInHierarchy)
+                    m_agent.destination =
+                        TargetPointTransform.transform.position;
+            }
+
+            yield return null;
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    IEnumerator DelayAfterAttack()
     {
-        if (other == null) { return; }
+        yield return new WaitForSeconds(DelaySeconds);
 
-        if (other.TryGetComponent(out CharacterController player))
-        {
-            m_agent.destination = TargetPointTransform.transform.position;
-            StateController.SetPatrol();
-        }
+        Init();
+    }
+
+
+    private void Init()
+    {
+        StopAllCoroutines();
+
+        StartCoroutine(UpdateMethod());
+    }
+
+    private void OnCharacterEnter(Transform characterT)
+    {
+        m_agent.destination = characterT.position;
+        StateController.SetChase();
+    }
+
+    private void OnCharacterAttack()
+    {
+        StateController.SetAttack();
+
+        //Attack
+
+        StartCoroutine(DelayAfterAttack());
+    }
+
+    private void OnCharacterExit(Transform characterT)
+    { 
+        m_agent.destination = TargetPointTransform.transform.position;
+        StateController.SetPatrol();
+    }
+
+    private bool PlayerIsClose( Transform target)
+    {
+        return (MinDistanceToPlayer <= EvaluateDistance(target));
     }
 
     private float EvaluateDistance(Transform target)
     {
         return Vector3.Distance(transform.localPosition, target.localPosition);
-    }
-
-    private bool PlayerIsClose(float distance, Transform target)
-    {
-        if (target.TryGetComponent(out CharacterController character))
-        {
-            if (EvaluateDistance(character.transform) <= distance)
-            {
-                return true;
-            }
-        }
-        
-        return false;
-
     }
 
 }
