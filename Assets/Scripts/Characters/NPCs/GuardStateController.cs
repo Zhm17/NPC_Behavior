@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class GuardStateController : MonoBehaviour
 {
-    private EGuardStates m_currentState = EGuardStates.PATROL;
-    [SerializeField] public EGuardStates CurrentState => m_currentState;
+    [SerializeField] private EGuardStates m_currentState = EGuardStates.PATROL;
+    public EGuardStates CurrentState => m_currentState;
 
     private IGuardState m_gState;
     public IGuardState GState
     {
         get { return m_gState;}
-        set 
+        private set 
         { 
             m_gState = value;
             m_gState.Exec();

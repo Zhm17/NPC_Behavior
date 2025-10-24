@@ -8,18 +8,27 @@ using UnityEngine.AI;
 public class GuardAI : MonoBehaviour
 {
     protected private NavMeshAgent m_agent;
-    public NavMeshAgent Agent => m_agent;
+    public NavMeshAgent Agent 
+    {
+        get { return m_agent; }
+        private set { m_agent = value; }
+    }
 
-    [SerializeField] public TargetPoint TargetPointTransform;
+
+    [SerializeField] private TargetPoint m_randomPointTransform;
+    private TargetPoint RandomPointTransform => m_randomPointTransform;
+
 
     protected GuardStateController m_stateController;
     public GuardStateController StateController
     {
         get { return m_stateController; }
+        protected set { m_stateController = value; }
     }
 
+
     [Header("Min Distance to Player")]
-    [SerializeField] private float m_minDistanceToPlayer = 100f;
+    [SerializeField] private float m_minDistanceToPlayer = 5f;
     public float MinDistanceToPlayer => m_minDistanceToPlayer;
 
 
@@ -27,38 +36,47 @@ public class GuardAI : MonoBehaviour
     [SerializeField] private CharacterDetector m_characterDetector;
     public CharacterDetector CharacterDetector => m_characterDetector;
 
+
     [Header("Delay After Attack")]
-    [SerializeField] private float m_delaySeconds = 3f;
-    public float DelaySeconds => m_delaySeconds;
+    [SerializeField] private float m_delaySeconds = 2f;
+    public float AttackDelaySeconds => m_delaySeconds;
+
 
     private void OnEnable()
     {
-        CharacterDetector.OnCharacterDetected += OnCharacterEnter;
-        CharacterDetector.OnCharacterExit += OnCharacterExit;
+        CharacterDetector.OnCharacterOutOfSight += OnCharacterPatrol;
+        CharacterDetector.OnCharacterDetected += OnCharacterDetected;
+        CharacterDetector.OnCharacterIsClose += OnCharacterAttack;
 
-        StartCoroutine(GetCloserCoroutine());
+        TargetPoint.OnTargetRelocated += SetNewRandomTargetPoint;
     }
 
     private void OnDisable()
     {
-        CharacterDetector.OnCharacterDetected -= OnCharacterEnter;
-        CharacterDetector.OnCharacterExit -= OnCharacterExit;
-
         StopAllCoroutines();
+
+        CharacterDetector.OnCharacterOutOfSight -= OnCharacterPatrol;
+        CharacterDetector.OnCharacterDetected -= OnCharacterDetected;
+        CharacterDetector.OnCharacterIsClose -= OnCharacterAttack;
+
+        TargetPoint.OnTargetRelocated -= SetNewRandomTargetPoint;
     }
 
     private void OnDestroy()
     {
-        CharacterDetector.OnCharacterDetected -= OnCharacterEnter;
-        CharacterDetector.OnCharacterExit -= OnCharacterExit;
-
         StopAllCoroutines();
+
+        CharacterDetector.OnCharacterOutOfSight -= OnCharacterPatrol;
+        CharacterDetector.OnCharacterDetected -= OnCharacterDetected;
+        CharacterDetector.OnCharacterIsClose -= OnCharacterAttack;
+
+        TargetPoint.OnTargetRelocated -= SetNewRandomTargetPoint;
     }
 
     void Awake()
     {
-        m_agent = GetComponent<NavMeshAgent>();
-        m_stateController = GetComponent<GuardStateController>();
+        Agent = GetComponent<NavMeshAgent>();
+        StateController = GetComponent<GuardStateController>();
     }
 
     private void Start()
@@ -66,52 +84,46 @@ public class GuardAI : MonoBehaviour
         Init();
     }
 
-
-    IEnumerator GetCloserCoroutine()
+    
+    private void Init()
     {
-        while (true)
-        {
-            if ((int)StateController.CurrentState == 1)
-            {
-                if (CharacterDetector.Character &&
-                    PlayerIsClose(CharacterDetector.Character.transform))
-                {
-                    OnCharacterAttack();
-                }
-            }
+        ActiveAIBehavior(true);
+        OnCharacterPatrol();
+    }
 
-            yield return null;
+    private void ActiveAIBehavior(bool active)
+    {
+        Agent.enabled = active;
+        CharacterDetector.Collider.enabled = active;
+    }
+
+    private void SetNewRandomTargetPoint()
+    {
+        if(StateController && StateController.CurrentState == EGuardStates.PATROL)
+        {
+            if (Agent) Agent.SetDestination(RandomPointTransform.transform.position);
         }
     }
 
-    IEnumerator AttackCoroutine()
+    private void OnCharacterPatrol()
     {
-        //Attack
-        Debug.Log("GuardAI :: ATTACK !!! ");
+        if (RandomPointTransform)
+            Agent.destination =
+                RandomPointTransform.transform.position;
 
-        m_agent.destination = transform.position;
-
-        yield return new WaitForSeconds(DelaySeconds);
-
-        Init();
+        StateController.SetPatrol();
     }
 
-
-    private void Init()
+    private void OnCharacterDetected()
     {
         StopAllCoroutines();
 
-        OnCharacterExit();
+        if (Agent && CharacterDetector && CharacterDetector.Character)
+        {
+            Agent.destination = CharacterDetector.Character.transform.position;
+            StateController.SetChase();
 
-        //StartCoroutine(GetCloserCoroutine());
-    }
-
-    private void OnCharacterEnter()
-    {
-        m_agent.destination = CharacterDetector.Character.transform.position;
-        StateController.SetChase();
-
-        StartCoroutine(GetCloserCoroutine());
+        }
     }
 
     private void OnCharacterAttack()
@@ -123,24 +135,20 @@ public class GuardAI : MonoBehaviour
         StartCoroutine(AttackCoroutine());
     }
 
-    private void OnCharacterExit()
+    IEnumerator AttackCoroutine()
     {
-        if (TargetPointTransform &&
-            TargetPointTransform.gameObject.activeInHierarchy)
-                        m_agent.destination =
-                            TargetPointTransform.transform.position;
+        //Attack
+        Debug.Log("GuardAI :: ATTACK !!! ");
 
-        StateController.SetPatrol();
+        ActiveAIBehavior(false);
+
+        yield return new WaitForSeconds(AttackDelaySeconds);
+
+        Init();
     }
 
-    private bool PlayerIsClose( Transform target)
-    {
-        return (MinDistanceToPlayer <= EvaluateDistance(target));
-    }
 
-    private float EvaluateDistance(Transform target)
-    {
-        return Vector3.Distance(transform.localPosition, target.localPosition);
-    }
+
+   
 
 }
