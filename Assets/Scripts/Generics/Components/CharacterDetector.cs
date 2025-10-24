@@ -5,7 +5,7 @@ namespace Generics {
     [RequireComponent(typeof(SphereCollider))]
     public class CharacterDetector : MonoBehaviour
     {
-        public delegate void CharacterDetectionAction(Transform t);
+        public delegate void CharacterDetectionAction();
         public static event CharacterDetectionAction OnCharacterDetected;
         public static event CharacterDetectionAction OnCharacterExit;
 
@@ -27,7 +27,7 @@ namespace Generics {
                 Debug.Log("CharacterDetector :: Character detected !!");
                 
                 if(OnCharacterDetected!= null)
-                    OnCharacterDetected(character.transform);
+                    OnCharacterDetected();
             }
         }
 
@@ -40,7 +40,7 @@ namespace Generics {
                 Debug.Log("CharacterDetector :: Character unseen !!");
                 
                 if(OnCharacterExit!= null)
-                    OnCharacterExit(character.transform);
+                    OnCharacterExit();
             }
         }
     }

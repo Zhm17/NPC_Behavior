@@ -4,9 +4,11 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(GuardStateController))]
+[RequireComponent(typeof(NavMeshAgent))]
 public class GuardAI : MonoBehaviour
 {
     protected private NavMeshAgent m_agent;
+    public NavMeshAgent Agent => m_agent;
 
     [SerializeField] public TargetPoint TargetPointTransform;
 
@@ -34,7 +36,7 @@ public class GuardAI : MonoBehaviour
         CharacterDetector.OnCharacterDetected += OnCharacterEnter;
         CharacterDetector.OnCharacterExit += OnCharacterExit;
 
-        StartCoroutine(UpdateMethod());
+        StartCoroutine(GetCloserCoroutine());
     }
 
     private void OnDisable()
@@ -65,11 +67,11 @@ public class GuardAI : MonoBehaviour
     }
 
 
-    IEnumerator UpdateMethod()
+    IEnumerator GetCloserCoroutine()
     {
         while (true)
         {
-            if ((int)StateController.CurrentState > 0)
+            if ((int)StateController.CurrentState == 1)
             {
                 if (CharacterDetector.Character &&
                     PlayerIsClose(CharacterDetector.Character.transform))
@@ -77,20 +79,18 @@ public class GuardAI : MonoBehaviour
                     OnCharacterAttack();
                 }
             }
-            else
-            {
-                if (TargetPointTransform &&
-                    TargetPointTransform.gameObject.activeInHierarchy)
-                    m_agent.destination =
-                        TargetPointTransform.transform.position;
-            }
 
             yield return null;
         }
     }
 
-    IEnumerator DelayAfterAttack()
+    IEnumerator AttackCoroutine()
     {
+        //Attack
+        Debug.Log("GuardAI :: ATTACK !!! ");
+
+        m_agent.destination = transform.position;
+
         yield return new WaitForSeconds(DelaySeconds);
 
         Init();
@@ -101,27 +101,35 @@ public class GuardAI : MonoBehaviour
     {
         StopAllCoroutines();
 
-        StartCoroutine(UpdateMethod());
+        OnCharacterExit();
+
+        //StartCoroutine(GetCloserCoroutine());
     }
 
-    private void OnCharacterEnter(Transform characterT)
+    private void OnCharacterEnter()
     {
-        m_agent.destination = characterT.position;
+        m_agent.destination = CharacterDetector.Character.transform.position;
         StateController.SetChase();
+
+        StartCoroutine(GetCloserCoroutine());
     }
 
     private void OnCharacterAttack()
     {
+        StopAllCoroutines();
+
         StateController.SetAttack();
 
-        //Attack
-
-        StartCoroutine(DelayAfterAttack());
+        StartCoroutine(AttackCoroutine());
     }
 
-    private void OnCharacterExit(Transform characterT)
-    { 
-        m_agent.destination = TargetPointTransform.transform.position;
+    private void OnCharacterExit()
+    {
+        if (TargetPointTransform &&
+            TargetPointTransform.gameObject.activeInHierarchy)
+                        m_agent.destination =
+                            TargetPointTransform.transform.position;
+
         StateController.SetPatrol();
     }
 

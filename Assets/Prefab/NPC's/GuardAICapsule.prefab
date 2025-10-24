@@ -151,6 +151,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TargetPointTransform: {fileID: 0}
   m_minDistanceToPlayer: 100
+  m_characterDetector: {fileID: 5641642897298807612}
+  m_delaySeconds: 0
 --- !u!54 &2383990682865210576
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -208,7 +210,7 @@ GameObject:
   - component: {fileID: 8456929668615620949}
   - component: {fileID: 5641642897298807612}
   m_Layer: 0
-  m_Name: SphereVision
+  m_Name: CharacterDetector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
