@@ -32,9 +32,12 @@ public class GuardAI : MonoBehaviour
     public float MinDistanceToPlayer => m_minDistanceToPlayer;
 
 
-    [Header("Character Detector")]
-    [SerializeField] private CharacterDetector m_characterDetector;
-    public CharacterDetector CharacterDetector => m_characterDetector;
+    private CharacterDetector m_characterDetector;
+    public CharacterDetector CharacterDetector
+    {
+        get { return m_characterDetector; }
+        private set { m_characterDetector = value; }
+    }
 
 
     [Header("Delay After Attack")]
@@ -77,6 +80,7 @@ public class GuardAI : MonoBehaviour
     {
         Agent = GetComponent<NavMeshAgent>();
         StateController = GetComponent<GuardStateController>();
+        CharacterDetector = GetComponent<CharacterDetector>();
     }
 
     private void Start()
