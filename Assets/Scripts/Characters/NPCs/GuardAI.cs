@@ -146,6 +146,8 @@ public class GuardAI : MonoBehaviour
 
         ActiveAIBehavior(false);
 
+        CharacterDetector?.Character.GetComponent<HealthComponent>()?.Hit(1);
+
         yield return new WaitForSeconds(AttackDelaySeconds);
 
         Init();
