@@ -1520,6 +1520,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7207114564595591384, guid: c4722961d76bea646b3b00db1f29a90c, type: 3}
   m_PrefabInstance: {fileID: 696115849854876027}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2114196535 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8880891099351731389, guid: c4722961d76bea646b3b00db1f29a90c, type: 3}
+  m_PrefabInstance: {fileID: 696115849854876027}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7402fe5995db9c4ba24d08da0f67a5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &696115849854876027
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1597,7 +1608,11 @@ PrefabInstance:
     - target: {fileID: 5159701892647158585, guid: 4a42358c2175bf048aeddca47e721ab0, type: 3}
       propertyPath: TargetTransform
       value: 
-      objectReference: {fileID: 2114196534}
+      objectReference: {fileID: 2114196535}
+    - target: {fileID: 5159701892647158585, guid: 4a42358c2175bf048aeddca47e721ab0, type: 3}
+      propertyPath: TargetPointTransform
+      value: 
+      objectReference: {fileID: 2114196535}
     - target: {fileID: 8590163271620845509, guid: 4a42358c2175bf048aeddca47e721ab0, type: 3}
       propertyPath: m_LocalPosition.x
       value: -8.2

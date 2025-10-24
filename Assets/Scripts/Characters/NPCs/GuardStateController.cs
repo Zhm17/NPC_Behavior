@@ -26,7 +26,7 @@ public class GuardStateController : MonoBehaviour
     }
 
 
-    private void SetPatrol()
+    public void SetPatrol()
     {
         //Assign current state
         m_currentState = EGuardStates.PATROL;
@@ -37,7 +37,7 @@ public class GuardStateController : MonoBehaviour
         GState = new GS_PatrolState();
     }
 
-    private void SetChase()
+    public void SetChase()
     {
         //Assign current state
         m_currentState = EGuardStates.CHASING;
@@ -48,7 +48,7 @@ public class GuardStateController : MonoBehaviour
         GState = new GS_ChaseState();
     }
 
-    private void SetAttack()
+    public void SetAttack()
     {
         //Assign current state
         m_currentState = EGuardStates.ATTACKING;

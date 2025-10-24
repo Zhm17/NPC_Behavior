@@ -5,15 +5,23 @@ using UnityEngine.AI;
 public class GuardAI : MonoBehaviour
 {
     protected private NavMeshAgent m_agent;
-    protected EGuardStates m_currentState = EGuardStates.PATROL;
 
-   
-    [SerializeField] public Transform TargetTransform;
+    [SerializeField] public TargetPoint TargetPointTransform;
+
+    protected GuardStateController m_stateController;
+    public GuardStateController StateController
+    {
+        get { return m_stateController; }
+    }
+
+    [Header("Min Distance to Player")]
+    [SerializeField] private float m_minDistanceToPlayer = 100f;
+    public float MinDistanceToPlayer => m_minDistanceToPlayer;
 
     void Awake()
     {
         Init();
-    }
+    } 
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -23,36 +31,47 @@ public class GuardAI : MonoBehaviour
 
     private void Update()
     {
-        if(TargetTransform && 
-            TargetTransform.gameObject.activeInHierarchy)
-                m_agent.destination = TargetTransform.position;
+        if (StateController.CurrentState == EGuardStates.PATROL)
+        {
+            if (TargetPointTransform &&
+                TargetPointTransform.gameObject.activeInHierarchy)
+                    m_agent.destination = 
+                    TargetPointTransform.transform.position;
+        }
     }
 
     private void OnEnable()
     {
-        //OnStateChanged(EGuardStates.PATROL);
+
     }
 
     private void Init()
     {
         m_agent = GetComponent<NavMeshAgent>();
+        m_stateController = GetComponent<GuardStateController>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other == null) { return; }
 
-        if (other.TryGetComponent(out TestPlayer player))
+        if (other.TryGetComponent(out CharacterController player))
         {
             m_agent.destination = other.transform.position;
+            StateController.SetChase();
         }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.TryGetComponent(out TestPlayer player))
+        if (other.TryGetComponent(out CharacterController player))
         {
             m_agent.destination = other.transform.position;
+
+            if (PlayerIsClose(m_minDistanceToPlayer, other.transform))
+            {
+                StateController.SetAttack();
+            }
         }
     }
 
@@ -60,9 +79,10 @@ public class GuardAI : MonoBehaviour
     {
         if (other == null) { return; }
 
-        if (other.TryGetComponent(out TestPlayer player))
+        if (other.TryGetComponent(out CharacterController player))
         {
-            m_agent.destination = TargetTransform.position;
+            m_agent.destination = TargetPointTransform.transform.position;
+            StateController.SetPatrol();
         }
     }
 
@@ -71,14 +91,18 @@ public class GuardAI : MonoBehaviour
         return Vector3.Distance(transform.localPosition, target.localPosition);
     }
 
-    private bool IsClose(float distance, Transform target)
+    private bool PlayerIsClose(float distance, Transform target)
     {
-        if(EvaluateDistance(target) <= distance)
+        if (target.TryGetComponent(out CharacterController character))
         {
-            return true;
+            if (EvaluateDistance(character.transform) <= distance)
+            {
+                return true;
+            }
         }
-
+        
         return false;
+
     }
 
 }
